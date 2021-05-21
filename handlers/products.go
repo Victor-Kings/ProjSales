@@ -9,6 +9,7 @@ import (
 
 type ProductsHandler interface {
 	Create(ctx echo.Context) error
+	ListAll(ctx echo.Context) error
 }
 type ProductsHandlerImp struct {
 	db models.ProductsDB
@@ -31,4 +32,14 @@ func (p *ProductsHandlerImp) Create(ctx echo.Context) error {
 		return ctx.JSON(http.StatusInternalServerError, nil)
 	}
 	return ctx.JSON(http.StatusOK, product)
+}
+
+func (p *ProductsHandlerImp) ListAll(ctx echo.Context) error {
+
+	a, err := p.db.ListAllProducts()
+	if err != nil {
+		return ctx.JSON(http.StatusInternalServerError, nil)
+	}
+
+	return ctx.JSON(http.StatusOK, a)
 }

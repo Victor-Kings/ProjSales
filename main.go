@@ -15,6 +15,7 @@ func main() {
 	productsHandler := handlers.NewProductsHandler()
 
 	echo.POST("/products", productsHandler.Create)
+	echo.GET("/products", productsHandler.ListAll)
 
 	echo.Logger.Fatal(echo.Start(":8080"))
 }
