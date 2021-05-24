@@ -14,6 +14,9 @@ const productsCollection = "products"
 type ProductsDB interface {
 	CreateProducts(product Products) error
 	ListAllProducts() ([]Products, error)
+	ListByIdProducts(id string) (*Products, error)
+	UpdateProduct(id string, product Products) error
+	DeleteProductById(id string) error
 }
 
 type ProductsDBImp struct{}
@@ -63,4 +66,100 @@ func (p ProductsDBImp) ListAllProducts() ([]Products, error) {
 	}
 
 	return products, nil
+}
+
+func (p ProductsDBImp) ListByIdProducts(id string) (*Products, error) {
+
+	client, err := db.GetMongoClient()
+	if err != nil {
+		return nil, err
+	}
+	collection := client.Database((db.DB)).Collection(productsCollection)
+
+	ID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return nil, err
+	}
+
+	product := Products{}
+
+	err = collection.FindOne(context.TODO(), bson.D{primitive.E{Key: "_id", Value: ID}}).Decode(&product)
+	if err != nil {
+		return nil, err
+	}
+
+	return &product, nil
+}
+
+func (p ProductsDBImp) UpdateProduct(id string, product Products) error {
+	ID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return err
+	}
+
+	filter := bson.D{primitive.E{Key: "_id", Value: ID}}
+
+	query := bson.D{
+		primitive.E{
+			Key: "$set",
+			Value: bson.D{
+				primitive.E{
+					Key:   "mark",
+					Value: product.Mark,
+				},
+				primitive.E{
+					Key:   "amount",
+					Value: product.Amount,
+				},
+				primitive.E{
+					Key:   "model",
+					Value: product.Model,
+				},
+				primitive.E{
+					Key:   "color",
+					Value: product.Color,
+				},
+				primitive.E{
+					Key:   "price",
+					Value: product.Price,
+				},
+			},
+		},
+	}
+
+	client, err := db.GetMongoClient()
+	if err != nil {
+		return err
+	}
+
+	collection := client.Database((db.DB)).Collection(productsCollection)
+
+	_, err = collection.UpdateOne(context.TODO(), filter, query)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (p ProductsDBImp) DeleteProductById(id string) error {
+
+	client, err := db.GetMongoClient()
+	if err != nil {
+		return err
+	}
+	collection := client.Database((db.DB)).Collection(productsCollection)
+
+	ID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return err
+	}
+
+	_, err = collection.DeleteOne(context.TODO(), bson.D{primitive.E{Key: "_id", Value: ID}})
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

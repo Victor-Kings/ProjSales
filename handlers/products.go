@@ -10,6 +10,9 @@ import (
 type ProductsHandler interface {
 	Create(ctx echo.Context) error
 	ListAll(ctx echo.Context) error
+	ListById(ctx echo.Context) error
+	Update(ctx echo.Context) error
+	Delete(ctx echo.Context) error
 }
 type ProductsHandlerImp struct {
 	db models.ProductsDB
@@ -22,7 +25,7 @@ func NewProductsHandler() ProductsHandler {
 }
 
 func (p *ProductsHandlerImp) Create(ctx echo.Context) error {
-	var product models.Products
+	product := models.Products{}
 
 	if err := ctx.Bind(&product); err != nil {
 		return err
@@ -36,10 +39,47 @@ func (p *ProductsHandlerImp) Create(ctx echo.Context) error {
 
 func (p *ProductsHandlerImp) ListAll(ctx echo.Context) error {
 
-	a, err := p.db.ListAllProducts()
+	products, err := p.db.ListAllProducts()
 	if err != nil {
 		return ctx.JSON(http.StatusInternalServerError, nil)
 	}
 
-	return ctx.JSON(http.StatusOK, a)
+	return ctx.JSON(http.StatusOK, products)
+}
+
+func (p *ProductsHandlerImp) ListById(ctx echo.Context) error {
+	id := ctx.Param("id")
+	product, err := p.db.ListByIdProducts(id)
+	if err != nil {
+		return ctx.JSON(http.StatusInternalServerError, nil)
+	}
+
+	return ctx.JSON(http.StatusOK, product)
+}
+
+func (p *ProductsHandlerImp) Update(ctx echo.Context) error {
+
+	product := models.Products{}
+
+	if err := ctx.Bind(&product); err != nil {
+		return err
+	}
+
+	id := ctx.Param("id")
+	if err := p.db.UpdateProduct(id, product); err != nil {
+		return ctx.JSON(http.StatusInternalServerError, err.Error())
+	}
+
+	return ctx.JSON(http.StatusOK, product)
+
+}
+
+func (p *ProductsHandlerImp) Delete(ctx echo.Context) error {
+	id := ctx.Param("id")
+	err := p.db.DeleteProductById(id)
+	if err != nil {
+		return ctx.JSON(http.StatusInternalServerError, nil)
+	}
+
+	return ctx.JSON(http.StatusOK, id)
 }

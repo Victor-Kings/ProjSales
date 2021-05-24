@@ -16,6 +16,9 @@ func main() {
 
 	echo.POST("/products", productsHandler.Create)
 	echo.GET("/products", productsHandler.ListAll)
+	echo.GET("/products/:id", productsHandler.ListById)
+	echo.POST("/products/:id", productsHandler.Update)
+	echo.DELETE("/products/:id", productsHandler.Delete)
 
 	echo.Logger.Fatal(echo.Start(":8080"))
 }
