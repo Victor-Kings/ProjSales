@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/Victor-Kings/ProjSales/handlers"
+	"github.com/Victor-Kings/ProjSales/routers/products"
 	"github.com/labstack/echo"
 )
 
@@ -12,13 +12,7 @@ func main() {
 
 	echo := echo.New()
 
-	productsHandler := handlers.NewProductsHandler()
-
-	echo.POST("/products", productsHandler.Create)
-	echo.GET("/products", productsHandler.ListAll)
-	echo.GET("/products/:id", productsHandler.ListById)
-	echo.POST("/products/:id", productsHandler.Update)
-	echo.DELETE("/products/:id", productsHandler.Delete)
+	products.ProductsRouters(echo)
 
 	echo.Logger.Fatal(echo.Start(":8080"))
 }
