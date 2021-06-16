@@ -7,6 +7,7 @@ import (
 	"github.com/Victor-Kings/ProjSales/db"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 const productsCollection = "products"
@@ -34,13 +35,20 @@ func NewProductsDB() ProductsDB {
 	return &ProductsDBImp{}
 }
 
-func (p ProductsDBImp) CreateProducts(product Products) error {
+func getCollectionMongo() (*mongo.Collection, error) {
 	client, err := db.GetMongoClient()
+	if err != nil {
+		return nil, err
+	}
+	collection := client.Database((db.DB)).Collection(productsCollection)
+	return collection, nil
+}
+
+func (p ProductsDBImp) CreateProducts(product Products) error {
+	collection, err := getCollectionMongo()
 	if err != nil {
 		return err
 	}
-	collection := client.Database((db.DB)).Collection(productsCollection)
-
 	_, err = collection.InsertOne(context.TODO(), product)
 	if err != nil {
 		return err
@@ -49,11 +57,10 @@ func (p ProductsDBImp) CreateProducts(product Products) error {
 }
 
 func (p ProductsDBImp) ListAllProducts() ([]Products, error) {
-	client, err := db.GetMongoClient()
+	collection, err := getCollectionMongo()
 	if err != nil {
 		return nil, err
 	}
-	collection := client.Database((db.DB)).Collection(productsCollection)
 
 	cursor, err2 := collection.Find(context.TODO(), bson.D{})
 	if err2 != nil {
@@ -70,11 +77,10 @@ func (p ProductsDBImp) ListAllProducts() ([]Products, error) {
 
 func (p ProductsDBImp) ListByIdProducts(id string) (*Products, error) {
 
-	client, err := db.GetMongoClient()
+	collection, err := getCollectionMongo()
 	if err != nil {
 		return nil, err
 	}
-	collection := client.Database((db.DB)).Collection(productsCollection)
 
 	ID, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
@@ -127,12 +133,10 @@ func (p ProductsDBImp) UpdateProduct(id string, product Products) error {
 		},
 	}
 
-	client, err := db.GetMongoClient()
+	collection, err := getCollectionMongo()
 	if err != nil {
 		return err
 	}
-
-	collection := client.Database((db.DB)).Collection(productsCollection)
 
 	_, err = collection.UpdateOne(context.TODO(), filter, query)
 
@@ -145,11 +149,10 @@ func (p ProductsDBImp) UpdateProduct(id string, product Products) error {
 
 func (p ProductsDBImp) DeleteProductById(id string) error {
 
-	client, err := db.GetMongoClient()
+	collection, err := getCollectionMongo()
 	if err != nil {
 		return err
 	}
-	collection := client.Database((db.DB)).Collection(productsCollection)
 
 	ID, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
