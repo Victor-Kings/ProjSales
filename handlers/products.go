@@ -1,91 +1,93 @@
 package handlers
 
-import (
-	"fmt"
-	"net/http"
+// import (
+// 	"fmt"
+// 	"net/http"
 
-	"github.com/Victor-Kings/ProjSales/models"
-	"github.com/labstack/echo"
-)
+// 	"github.com/Victor-Kings/ProjSales/models"
+// 	"github.com/Victor-Kings/ProjSales/repository"
+// 	"github.com/labstack/echo"
+// )
 
-type ProductsHandler interface {
-	Create(ctx echo.Context) error
-	ListAll(ctx echo.Context) error
-	ListById(ctx echo.Context) error
-	Update(ctx echo.Context) error
-	Delete(ctx echo.Context) error
-}
-type ProductsHandlerImp struct {
-	db models.ProductsDB
-}
+// type ProductsHandler interface {
+// 	// Create(ctx echo.Context) error
+// 	// ListAll(ctx echo.Context) error
+// 	ListById(ctx echo.Context) error
+// 	// Update(ctx echo.Context) error
+// 	// Delete(ctx echo.Context) error
+// }
+// type ProductsHandlerImp struct {
+// 	db models.Products
+// }
 
-func NewProductsHandler() ProductsHandler {
-	return &ProductsHandlerImp{
-		db: models.NewProductsDB(),
-	}
-}
+// func NewProductsHandler() ProductsHandler {
+// 	return &ProductsHandlerImp{
+// 		db: repository.(),
+// 	}
+// }
 
-func (p *ProductsHandlerImp) Create(ctx echo.Context) error {
-	product := models.Products{}
+// //generalizar para usuarios ou outros, tipo generics do java
+// // func (p *ProductsHandlerImp) Create(ctx echo.Context) error {
+// // 	product := models.Products{}
 
-	if err := ctx.Bind(&product); err != nil {
-		return err
-	}
+// // 	if err := ctx.Bind(&product); err != nil {
+// // 		return err
+// // 	}
 
-	if err := p.db.CreateProducts(product); err != nil {
-		fmt.Println("ERROR - Handler Products [Create] --- ", err)
-		return ctx.JSON(http.StatusInternalServerError, nil)
-	}
-	return ctx.JSON(http.StatusOK, product)
-}
+// // 	if err := p.db.CreateProducts(product); err != nil {
+// // 		fmt.Println("ERROR - Handler Products [Create] --- ", err)
+// // 		return ctx.JSON(http.StatusInternalServerError, nil)
+// // 	}
+// // 	return ctx.JSON(http.StatusOK, product)
+// // }
 
-func (p *ProductsHandlerImp) ListAll(ctx echo.Context) error {
+// // func (p *ProductsHandlerImp) ListAll(ctx echo.Context) error {
 
-	products, err := p.db.ListAllProducts()
-	if err != nil {
-		fmt.Println("ERROR - Handler Products [ListAll] --- ", err)
-		return ctx.JSON(http.StatusInternalServerError, nil)
-	}
+// // 	products, err := p.db.ListAllProducts()
+// // 	if err != nil {
+// // 		fmt.Println("ERROR - Handler Products [ListAll] --- ", err)
+// // 		return ctx.JSON(http.StatusInternalServerError, nil)
+// // 	}
 
-	return ctx.JSON(http.StatusOK, products)
-}
+// // 	return ctx.JSON(http.StatusOK, products)
+// // }
 
-func (p *ProductsHandlerImp) ListById(ctx echo.Context) error {
-	id := ctx.Param("id")
-	product, err := p.db.ListByIdProducts(id)
-	if err != nil {
-		fmt.Println("ERROR - Handler Products [listbyId] --- ", err)
-		return ctx.JSON(http.StatusInternalServerError, nil)
-	}
+// func (p *ProductsHandlerImp) ListById(ctx echo.Context) error {
+// 	id := ctx.Param("id")
+// 	product, err := p.db.ListByIdProducts(id)
+// 	if err != nil {
+// 		fmt.Println("ERROR - Handler Products [listbyId] --- ", err)
+// 		return ctx.JSON(http.StatusInternalServerError, nil)
+// 	}
 
-	return ctx.JSON(http.StatusOK, product)
-}
+// 	return ctx.JSON(http.StatusOK, product)
+// }
 
-func (p *ProductsHandlerImp) Update(ctx echo.Context) error {
+// // func (p *ProductsHandlerImp) Update(ctx echo.Context) error {
 
-	product := models.Products{}
+// // 	product := models.Products{}
 
-	if err := ctx.Bind(&product); err != nil {
-		return err
-	}
+// // 	if err := ctx.Bind(&product); err != nil {
+// // 		return err
+// // 	}
 
-	id := ctx.Param("id")
-	if err := p.db.UpdateProduct(id, product); err != nil {
-		fmt.Println("ERROR - Handler Products [Update] --- ", err)
-		return ctx.JSON(http.StatusInternalServerError, err.Error())
-	}
+// // 	id := ctx.Param("id")
+// // 	if err := p.db.UpdateProduct(id, product); err != nil {
+// // 		fmt.Println("ERROR - Handler Products [Update] --- ", err)
+// // 		return ctx.JSON(http.StatusInternalServerError, err.Error())
+// // 	}
 
-	return ctx.JSON(http.StatusOK, product)
+// // 	return ctx.JSON(http.StatusOK, product)
 
-}
+// // }
 
-func (p *ProductsHandlerImp) Delete(ctx echo.Context) error {
-	id := ctx.Param("id")
-	err := p.db.DeleteProductById(id)
-	if err != nil {
-		fmt.Println("ERROR - Handler Products [Delete] --- ", err)
-		return ctx.JSON(http.StatusInternalServerError, nil)
-	}
+// // func (p *ProductsHandlerImp) Delete(ctx echo.Context) error {
+// // 	id := ctx.Param("id")
+// // 	err := p.db.DeleteProductById(id)
+// // 	if err != nil {
+// // 		fmt.Println("ERROR - Handler Products [Delete] --- ", err)
+// // 		return ctx.JSON(http.StatusInternalServerError, nil)
+// // 	}
 
-	return ctx.JSON(http.StatusOK, id)
-}
+// // 	return ctx.JSON(http.StatusOK, id)
+// // }
