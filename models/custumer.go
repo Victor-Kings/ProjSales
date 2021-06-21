@@ -1,6 +1,7 @@
 package models
 
 import (
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -26,9 +27,27 @@ import (
 
 // type ConsumerDBImp struct{}
 
-type Consumer struct {
-	Id   primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
-	Name string             `json:"name,,omitempty" bson:"name,,omitempty"`
+type Custumer struct {
+	Id      primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
+	Name    string             `json:"name,omitempty" bson:"name,omitempty"`
+	CPF     string             `json:"cpf,omitempty" bson:"cpf,omitempty"`
+	Address string             `json:"address,omitempty" bson:"address,omitempty"`
+	Phone   string             `json:"phone,omitempty" bson:"phone,omitempty"`
+}
+
+func (c *Custumer) UpdateQuery(content interface{}) primitive.D {
+	query := bson.D{
+		primitive.E{
+			Key: "$set",
+			Value: bson.D{
+				primitive.E{
+					Key:   "name",
+					Value: c.Name,
+				},
+			},
+		},
+	}
+	return query
 }
 
 // func NewconsumerDB() ConsumerDB {

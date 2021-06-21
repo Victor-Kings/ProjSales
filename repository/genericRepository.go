@@ -12,22 +12,25 @@ import (
 //const productsCollection = "products"
 
 type GenericRepo interface {
-	//Create(product Products, collection string) error
-
-	ListById(a interface{}, id string, collectionName string) (interface{}, error)
-	//Update(id string, product Products, collectionName string) error
+	Create(content interface{}) error
+	ListById(id string) (interface{}, error)
+	Update(id string, content interface{}) error
 	//DeleteById(id string, collectionName string) error
 }
-
-// type generic struct {
-// 	mConsumer models.Consumer
-// 	mProducts models.Products
-// }
-type GenericRepoImp struct {
+type ExternalModel interface {
+	UpdateQuery(content interface{}) primitive.D
 }
 
-func NewGenericRepo() GenericRepo {
-	return &GenericRepoImp{}
+type GenericRepoImp struct {
+	model          ExternalModel
+	collectionName string
+}
+
+func NewGenericRepo(externalModel ExternalModel, collectionName string) GenericRepo {
+	return &GenericRepoImp{
+		model:          externalModel,
+		collectionName: collectionName,
+	}
 }
 
 func getCollection(collectionName string) (*mongo.Collection, error) {
@@ -39,21 +42,21 @@ func getCollection(collectionName string) (*mongo.Collection, error) {
 	return collection, nil
 }
 
-// func (p GenericRepoImp) Create(product Products, collectionName string) error {
-// 	collection, err := getCollection(collectionName)
-// 	if err != nil {
-// 		return err
-// 	}
-// 	_, err = collection.InsertOne(context.TODO(), product)
-// 	if err != nil {
-// 		return err
-// 	}
-// 	return nil
-// }
+func (g *GenericRepoImp) Create(content interface{}) error {
+	collection, err := getCollection(g.collectionName)
+	if err != nil {
+		return err
+	}
+	_, err = collection.InsertOne(context.TODO(), content)
+	if err != nil {
+		return err
+	}
+	return nil
+}
 
-func (p GenericRepoImp) ListById(a interface{}, id, collectionName string) (interface{}, error) {
+func (g *GenericRepoImp) ListById(id string) (interface{}, error) {
 
-	collection, err := getCollection(collectionName)
+	collection, err := getCollection(g.collectionName)
 	if err != nil {
 		return nil, err
 	}
@@ -63,9 +66,9 @@ func (p GenericRepoImp) ListById(a interface{}, id, collectionName string) (inte
 		return nil, err
 	}
 
-	content := a
+	content := g.model
 
-	err = collection.FindOne(context.TODO(), bson.D{primitive.E{Key: "_id", Value: ID}}).Decode(&content)
+	err = collection.FindOne(context.TODO(), bson.D{primitive.E{Key: "_id", Value: ID}}).Decode(content)
 	if err != nil {
 		return nil, err
 	}
@@ -73,55 +76,29 @@ func (p GenericRepoImp) ListById(a interface{}, id, collectionName string) (inte
 	return &content, nil
 }
 
-// func (p GenericRepoImp) Update(id string, product Products, collectionName string, query primitive.D) error {
-// 	ID, err := primitive.ObjectIDFromHex(id)
-// 	if err != nil {
-// 		return err
-// 	}
+func (g *GenericRepoImp) Update(id string, content interface{}) error {
+	ID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return err
+	}
 
-// 	filter := bson.D{primitive.E{Key: "_id", Value: ID}}
+	filter := bson.D{primitive.E{Key: "_id", Value: ID}}
 
-// 	// query := bson.D{
-// 	// 	primitive.E{
-// 	// 		Key: "$set",
-// 	// 		Value: bson.D{
-// 	// 			primitive.E{
-// 	// 				Key:   "mark",
-// 	// 				Value: product.Mark,
-// 	// 			},
-// 	// 			primitive.E{
-// 	// 				Key:   "amount",
-// 	// 				Value: product.Amount,
-// 	// 			},
-// 	// 			primitive.E{
-// 	// 				Key:   "Repo",
-// 	// 				Value: product.Repo,
-// 	// 			},
-// 	// 			primitive.E{
-// 	// 				Key:   "color",
-// 	// 				Value: product.Color,
-// 	// 			},
-// 	// 			primitive.E{
-// 	// 				Key:   "price",
-// 	// 				Value: product.Price,
-// 	// 			},
-// 	// 		},
-// 	// 	},
-// 	// }
+	query := g.model.UpdateQuery(content)
 
-// 	collection, err := getCollection(collectionName)
-// 	if err != nil {
-// 		return err
-// 	}
+	collection, err := getCollection(g.collectionName)
+	if err != nil {
+		return err
+	}
 
-// 	_, err = collection.UpdateOne(context.TODO(), filter, query)
+	_, err = collection.UpdateOne(context.TODO(), filter, query)
 
-// 	if err != nil {
-// 		return err
-// 	}
+	if err != nil {
+		return err
+	}
 
-// 	return nil
-// }
+	return nil
+}
 
 // func (p GenericRepoImp) DeleteById(id string, collectionName string) error {
 

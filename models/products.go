@@ -1,6 +1,9 @@
 package models
 
-import "go.mongodb.org/mongo-driver/bson/primitive"
+import (
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+)
 
 // import (
 // 	"context"
@@ -26,11 +29,42 @@ type ProductsDBImp struct{}
 
 type Products struct {
 	Id     primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
-	Mark   string             `json:"mark,,omitempty" bson:"mark,,omitempty"`
-	Amount int                `json:"amount,,omitempty" bson:"amount,,omitempty"`
+	Mark   string             `json:"mark,omitempty" bson:"mark,omitempty"`
+	Amount int                `json:"amount,omitempty" bson:"amount,omitempty"`
 	Model  string             `json:"model" bson:"model"`
 	Color  string             `json:"color" bson:"color"`
 	Price  float64            `json:"price" bson:"price"`
+}
+
+func (p *Products) UpdateQuery(content interface{}) primitive.D {
+	query := bson.D{
+		primitive.E{
+			Key: "$set",
+			Value: bson.D{
+				primitive.E{
+					Key:   "mark",
+					Value: p.Mark,
+				},
+				primitive.E{
+					Key:   "amount",
+					Value: p.Amount,
+				},
+				primitive.E{
+					Key:   "Model",
+					Value: p.Model,
+				},
+				primitive.E{
+					Key:   "color",
+					Value: p.Color,
+				},
+				primitive.E{
+					Key:   "price",
+					Value: p.Price,
+				},
+			},
+		},
+	}
+	return query
 }
 
 // func NewProductsDB() ProductsDB {
